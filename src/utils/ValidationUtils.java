@@ -1,0 +1,93 @@
+package utils;
+
+import utils.exceptions.InvalidInputException;
+
+// all the validation rules are here, each method returns the value or throws InvalidInputException
+public class ValidationUtils {
+
+    /** Checks that the text is not empty and returns it without the extra spaces. */
+    public static String requireText(String text, String fieldName) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new InvalidInputException(fieldName + " cannot be empty.");
+        }
+        return text.trim();
+    }
+
+    /** Turns the text into a whole number, throws InvalidInputException if it is not one. */
+    public static int parseInt(String text, String fieldName) {
+        try {
+            return Integer.parseInt(text.trim());
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(fieldName + " must be a whole number.");
+        }
+    }
+
+    /** Turns the text into a decimal number, throws InvalidInputException if it is not one. */
+    public static double parseDouble(String text, String fieldName) {
+        try {
+            return Double.parseDouble(text.trim());
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException(fieldName + " must be a number.");
+        }
+    }
+
+    /** Checks that the number is greater than 0. */
+    public static int requirePositive(int value, String fieldName) {
+        if (value <= 0) {
+            throw new InvalidInputException(fieldName + " must be greater than 0.");
+        }
+        return value;
+    }
+
+    /** Checks that the number is greater than 0. */
+    public static double requirePositive(double value, String fieldName) {
+        if (value <= 0) {
+            throw new InvalidInputException(fieldName + " must be greater than 0.");
+        }
+        return value;
+    }
+
+    /** Checks that a menu choice is between min and max. */
+    public static int requireChoice(int choice, int min, int max) {
+        if (choice < min || choice > max) {
+            throw new InvalidInputException("Invalid option. Please select " + min + "-" + max + ".");
+        }
+        return choice;
+    }
+
+    /** Checks that the email looks like name@example.com. */
+    public static String requireValidEmail(String email) {
+        String value = requireText(email, "Email");
+        if (!value.contains("@") || value.indexOf('@') > value.lastIndexOf('.') || value.contains(" ")) {
+            throw new InvalidInputException("'" + value + "' is not a valid email address.");
+        }
+        return value;
+    }
+
+    /** Checks that the role choice is 1 (Regular) or 2 (Admin). */
+    public static int requireValidRole(int roleChoice) {
+        if (roleChoice != 1 && roleChoice != 2) {
+            throw new InvalidInputException("Role must be 1 (Regular) or 2 (Admin).");
+        }
+        return roleChoice;
+    }
+
+    /** Checks that the minimum budget is not negative and not bigger than the maximum. */
+    public static void requireValidRange(double min, double max) {
+        if (min < 0 || max < min) {
+            throw new InvalidInputException("Minimum must be 0 or more and not above maximum.");
+        }
+    }
+
+    /** Turns what the user typed into an id: "PRJ001", "prj1" and "1" all give "PRJ001". */
+    public static String normalizeId(String input, String prefix) {
+        String value = requireText(input, "ID").toUpperCase();
+        String number = value.startsWith(prefix) ? value.substring(prefix.length()) : value;
+        try {
+            return prefix + String.format("%03d", Integer.parseInt(number));
+        } catch (NumberFormatException e) {
+            // not a number, like "P999": keep it as typed so it is reported as not found
+            return value;
+        }
+    }
+}
